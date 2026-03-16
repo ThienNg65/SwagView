@@ -126,11 +126,84 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      color: #888;
-      gap: 12px;
+      background: #f5f5f5;
+      padding: 40px 20px;
+      gap: 0;
     }
-    #welcome h2 { font-size: 20px; color: #555; }
-    #welcome p { font-size: 14px; }
+
+    .welcome-hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .welcome-hero .hero-icon {
+      font-size: 56px;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+    .welcome-hero h2 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+    .welcome-hero p {
+      font-size: 15px;
+      color: #777;
+    }
+
+    .welcome-cards {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+    .welcome-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px 20px;
+      width: 180px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      border: 1px solid #ebebeb;
+    }
+    .welcome-card .card-icon { font-size: 28px; margin-bottom: 10px; }
+    .welcome-card h3 { font-size: 13px; font-weight: 600; color: #1a1a2e; margin-bottom: 5px; }
+    .welcome-card p { font-size: 12px; color: #999; line-height: 1.5; }
+
+    .welcome-cta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .welcome-cta .cta-label {
+      font-size: 13px;
+      color: #aaa;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .welcome-cta .cta-label::before,
+    .welcome-cta .cta-label::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 1px;
+      background: #ddd;
+    }
+    .welcome-cta button {
+      padding: 12px 28px;
+      background: #1a1a2e;
+      color: #7ec8e3;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .welcome-cta button:hover { background: #0f3460; transform: translateY(-1px); }
 
     #swagger-container {
       flex: 1;
@@ -282,8 +355,39 @@
 <!-- Main area -->
 <div id="main">
   <div id="welcome">
-    <h2>Swagger Viewer</h2>
-    <p>Select a spec from the sidebar to view it.</p>
+    <div class="welcome-hero">
+      <div class="hero-icon">📘</div>
+      <h2>Swagger Viewer</h2>
+      <p>Explore and visualize your OpenAPI specs in one place.</p>
+    </div>
+
+    <div class="welcome-cards">
+      <div class="welcome-card">
+        <div class="card-icon">📋</div>
+        <h3>Paste YAML</h3>
+        <p>Paste your OpenAPI YAML directly into the editor</p>
+      </div>
+      <div class="welcome-card">
+        <div class="card-icon">📂</div>
+        <h3>Import File</h3>
+        <p>Load a <code>.yaml</code> or <code>.yml</code> file from your machine</p>
+      </div>
+      <div class="welcome-card">
+        <div class="card-icon">💾</div>
+        <h3>Auto Saved</h3>
+        <p>All specs are stored locally in your browser</p>
+      </div>
+      <div class="welcome-card">
+        <div class="card-icon">🔍</div>
+        <h3>Try it Out</h3>
+        <p>Interact with endpoints directly from the viewer</p>
+      </div>
+    </div>
+
+    <div class="welcome-cta">
+      <span class="cta-label">get started</span>
+      <button onclick="openModal()">+ Add your first Spec</button>
+    </div>
   </div>
   <div id="swagger-container"></div>
 </div>
