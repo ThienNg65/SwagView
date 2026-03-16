@@ -2,7 +2,7 @@
 
 > Explore and visualize your OpenAPI specs in one place — no backend, no login, no setup.
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/YOUR_BADGE_ID/deploy-status)](https://swagview.netlify.app)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/d07c3142-ca37-4c3b-a6bc-243684cd81fa/deploy-status)](https://app.netlify.com/projects/swagview/deploys)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 **Live → [swagview.netlify.app](https://swagview.netlify.app)**
