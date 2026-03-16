@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#0f3460"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#16213e"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)" />
+
+  <!-- Decorative circles -->
+  <circle cx="1100" cy="80" r="180" fill="#0f3460" opacity="0.4"/>
+  <circle cx="100" cy="580" r="140" fill="#16213e" opacity="0.5"/>
+
+  <!-- Mini sidebar card -->
+  <rect x="120" y="160" width="240" height="310" rx="16" fill="url(#card)" opacity="0.9"/>
+  <rect x="120" y="160" width="240" height="52" rx="16" fill="#16213e"/>
+  <rect x="120" y="196" width="240" height="16" fill="#16213e"/>
+  <text x="144" y="193" font-family="monospace" font-size="15" fill="#7ec8e3" font-weight="600">📄 Swagger Viewer</text>
+  <rect x="136" y="228" width="208" height="32" rx="6" fill="#0f3460"/>
+  <text x="204" y="249" font-family="monospace" font-size="13" fill="#7ec8e3" text-anchor="middle">+ Add Spec</text>
+  <rect x="136" y="272" width="208" height="28" rx="5" fill="#0f3460" opacity="0.7"/>
+  <text x="152" y="291" font-family="monospace" font-size="12" fill="#cce" opacity="0.8">User Service API</text>
+  <rect x="136" y="308" width="208" height="28" rx="5" fill="none"/>
+  <text x="152" y="327" font-family="monospace" font-size="12" fill="#888">Payment API v2</text>
+  <rect x="136" y="344" width="208" height="28" rx="5" fill="none"/>
+  <text x="152" y="363" font-family="monospace" font-size="12" fill="#888">Auth Service</text>
+  <rect x="136" y="380" width="208" height="28" rx="5" fill="none"/>
+  <text x="152" y="399" font-family="monospace" font-size="12" fill="#888">Inventory API</text>
+
+  <!-- Main content card -->
+  <rect x="400" y="140" width="680" height="350" rx="16" fill="#fff" opacity="0.05"/>
+  <rect x="400" y="140" width="680" height="350" rx="16" fill="none" stroke="#7ec8e3" stroke-width="1" opacity="0.2"/>
+
+  <!-- GET badge -->
+  <rect x="432" y="176" width="62" height="24" rx="5" fill="#49cc90"/>
+  <text x="463" y="193" font-family="monospace" font-size="13" fill="#fff" font-weight="700" text-anchor="middle">GET</text>
+  <text x="510" y="193" font-family="monospace" font-size="13" fill="#aaa">/api/v1/users</text>
+
+  <!-- POST badge -->
+  <rect x="432" y="216" width="62" height="24" rx="5" fill="#fca130"/>
+  <text x="463" y="233" font-family="monospace" font-size="13" fill="#fff" font-weight="700" text-anchor="middle">POST</text>
+  <text x="510" y="233" font-family="monospace" font-size="13" fill="#aaa">/api/v1/users</text>
+
+  <!-- PUT badge -->
+  <rect x="432" y="256" width="62" height="24" rx="5" fill="#50e3c2"/>
+  <text x="463" y="273" font-family="monospace" font-size="13" fill="#fff" font-weight="700" text-anchor="middle">PUT</text>
+  <text x="510" y="273" font-family="monospace" font-size="13" fill="#aaa">/api/v1/users/{id}</text>
+
+  <!-- DELETE badge -->
+  <rect x="432" y="296" width="62" height="24" rx="5" fill="#f93e3e"/>
+  <text x="463" y="313" font-family="monospace" font-size="13" fill="#fff" font-weight="700" text-anchor="middle">DEL</text>
+  <text x="510" y="313" font-family="monospace" font-size="13" fill="#aaa">/api/v1/users/{id}</text>
+
+  <!-- Divider -->
+  <line x1="432" y1="344" x2="1048" y2="344" stroke="#7ec8e3" stroke-width="1" opacity="0.15"/>
+  <text x="432" y="368" font-family="monospace" font-size="12" fill="#7ec8e3" opacity="0.6">▶ Try it out  ·  Authorize  ·  Models</text>
+
+  <!-- Hero text -->
+  <text x="600" y="540" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="42" fill="#ffffff" font-weight="700" text-anchor="middle">📘 Swagger Viewer</text>
+  <text x="600" y="585" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="20" fill="#7ec8e3" text-anchor="middle">Explore and visualize your OpenAPI specs in one place</text>
+</svg>
