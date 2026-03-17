@@ -121,6 +121,98 @@
     }
     .icon-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
     .icon-btn.delete:hover { color: #ff6b6b; }
+    .icon-btn.sync:hover { color: #7ec8e3; }
+    .icon-btn.syncing { animation: spin 0.8s linear infinite; pointer-events: none; color: #7ec8e3; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .spec-item-sync-status {
+      font-size: 10px;
+      color: #666;
+      margin-left: 22px;
+      margin-top: -2px;
+      margin-bottom: 4px;
+    }
+
+    #sidebar-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    #btn-sync-all {
+      flex: 1;
+      padding: 7px 8px;
+      background: transparent;
+      color: #7ec8e3;
+      border: 1px solid #1a5276;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+    #btn-sync-all:hover { background: #1a5276; }
+    #btn-sync-all:disabled { opacity: 0.5; cursor: default; }
+
+    #btn-settings {
+      padding: 7px 10px;
+      background: transparent;
+      color: #7ec8e3;
+      border: 1px solid #1a5276;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.15s;
+    }
+    #btn-settings:hover { background: #1a5276; }
+
+    /* ── Settings panel ── */
+    #settings-panel {
+      display: none;
+      padding: 12px 16px;
+      background: #16213e;
+      border-bottom: 1px solid #0f3460;
+    }
+    #settings-panel.open { display: block; }
+    #settings-panel label { font-size: 11px; color: #999; display: block; margin-bottom: 4px; }
+    #settings-panel input {
+      width: 100%;
+      padding: 6px 8px;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      border: 1px solid #0f3460;
+      border-radius: 4px;
+      font-size: 12px;
+      outline: none;
+    }
+    #settings-panel input:focus { border-color: #7ec8e3; }
+    #settings-panel .settings-hint { font-size: 10px; color: #555; margin-top: 4px; line-height: 1.4; }
+
+    /* ── Source URL in modal ── */
+    .source-url-group { display: flex; gap: 8px; align-items: center; }
+    .source-url-group input {
+      flex: 1;
+      padding: 9px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .source-url-group input:focus { border-color: #4a90d9; }
+    .source-url-group button {
+      padding: 9px 14px;
+      background: #f0f0f0;
+      color: #555;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .source-url-group button:hover { background: #e4e4e4; }
+    .source-url-group button:disabled { opacity: 0.5; cursor: default; }
 
     #empty-state {
       padding: 20px 16px;
@@ -364,6 +456,15 @@
   <div id="sidebar-header">
     <h1>📄 Swagger Viewer</h1>
     <button id="btn-add" onclick="openModal()">+ Add Spec</button>
+    <div id="sidebar-actions">
+      <button id="btn-sync-all" onclick="syncAll()">Sync All</button>
+      <button id="btn-settings" onclick="toggleSettings()" title="Settings">&#9881;</button>
+    </div>
+  </div>
+  <div id="settings-panel">
+    <label for="cors-proxy-input">CORS Proxy URL (optional)</label>
+    <input id="cors-proxy-input" type="text" placeholder="e.g. https://your-proxy.workers.dev/?url=" oninput="saveCorsProxy()" />
+    <div class="settings-hint">Prepended to source URLs when fetching. Needed if your Git server blocks cross-origin requests.</div>
   </div>
   <div id="spec-list">
     <div id="empty-state">No specs yet.<br/>Click <strong>+ Add Spec</strong> to get started.</div>
@@ -422,6 +523,13 @@
         <label for="spec-name-input">Spec Name</label>
         <input id="spec-name-input" type="text" placeholder="e.g. User Service API v2" />
       </div>
+      <div>
+        <label for="source-url-input">Source URL (optional)</label>
+        <div class="source-url-group">
+          <input id="source-url-input" type="url" placeholder="e.g. https://gitea.company.com/org/repo/raw/branch/main/openapi.yaml" />
+          <button id="fetch-url-btn" onclick="fetchFromUrl()">Fetch</button>
+        </div>
+      </div>
       <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
           <label style="margin:0">YAML Content</label>
@@ -445,7 +553,8 @@
 <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
 <script>
   const STORAGE_KEY = 'swagger_specs';
-  let specs = [];       // [{ id, name, yaml }]
+  const CORS_PROXY_KEY = 'swagger_cors_proxy';
+  let specs = [];       // [{ id, name, yaml, source?: { url, lastSynced } }]
   let activeId = null;
   let editingId = null;
   let swaggerUI = null;
@@ -467,15 +576,20 @@
       list.innerHTML = '<div id="empty-state">No specs yet.<br/>Click <strong>+ Add Spec</strong> to get started.</div>';
       return;
     }
-    list.innerHTML = specs.map(s => `
+    list.innerHTML = specs.map(s => {
+      const hasSource = s.source && s.source.url;
+      const syncInfo = hasSource && s.source.lastSynced
+        ? `<div class="spec-item-sync-status">Synced ${formatTimeAgo(s.source.lastSynced)}</div>` : '';
+      return `
       <div class="spec-item ${s.id === activeId ? 'active' : ''}" onclick="selectSpec('${s.id}')">
         <span class="spec-item-name" title="${escHtml(s.name)}">${escHtml(s.name)}</span>
         <span class="spec-item-actions">
+          ${hasSource ? `<button class="icon-btn sync" id="sync-${s.id}" title="Sync from source" onclick="event.stopPropagation(); syncSpec('${s.id}')">&#8635;</button>` : ''}
           <button class="icon-btn" title="Edit" onclick="event.stopPropagation(); openModal('${s.id}')">✏️</button>
           <button class="icon-btn delete" title="Delete" onclick="event.stopPropagation(); deleteSpec('${s.id}')">🗑</button>
         </span>
-      </div>
-    `).join('');
+      </div>${syncInfo}`;
+    }).join('');
   }
 
   function escHtml(str) {
@@ -519,9 +633,11 @@
       const spec = specs.find(s => s.id === id);
       document.getElementById('spec-name-input').value = spec.name;
       document.getElementById('yaml-textarea').value = spec.yaml;
+      document.getElementById('source-url-input').value = (spec.source && spec.source.url) || '';
     } else {
       document.getElementById('spec-name-input').value = '';
       document.getElementById('yaml-textarea').value = '';
+      document.getElementById('source-url-input').value = '';
     }
     document.getElementById('modal-overlay').classList.add('open');
     setTimeout(() => document.getElementById('spec-name-input').focus(), 50);
@@ -535,6 +651,7 @@
   function saveSpec() {
     const name = document.getElementById('spec-name-input').value.trim();
     const yaml = document.getElementById('yaml-textarea').value.trim();
+    const sourceUrl = document.getElementById('source-url-input').value.trim();
     const errEl = document.getElementById('modal-error');
 
     if (!name) { errEl.textContent = 'Please enter a spec name.'; return; }
@@ -545,12 +662,20 @@
       return;
     }
 
+    const source = sourceUrl ? { url: sourceUrl, lastSynced: null } : null;
+
     if (editingId) {
       const spec = specs.find(s => s.id === editingId);
       spec.name = name;
       spec.yaml = yaml;
+      // Preserve lastSynced if URL unchanged, reset if URL changed
+      if (source) {
+        const oldUrl = spec.source && spec.source.url;
+        source.lastSynced = (oldUrl === sourceUrl && spec.source) ? spec.source.lastSynced : null;
+      }
+      spec.source = source;
     } else {
-      specs.push({ id: crypto.randomUUID(), name, yaml });
+      specs.push({ id: crypto.randomUUID(), name, yaml, source });
     }
 
     saveSpecs();
@@ -588,6 +713,127 @@
     event.target.value = '';
   }
 
+  // ── Git sync ─────────────────────────────────────────────
+  function getCorsProxy() {
+    return localStorage.getItem(CORS_PROXY_KEY) || '';
+  }
+
+  function saveCorsProxy() {
+    localStorage.setItem(CORS_PROXY_KEY, document.getElementById('cors-proxy-input').value.trim());
+  }
+
+  function toggleSettings() {
+    document.getElementById('settings-panel').classList.toggle('open');
+  }
+
+  function buildFetchUrl(url) {
+    const proxy = getCorsProxy();
+    if (!proxy) return url;
+    return proxy + encodeURIComponent(url);
+  }
+
+  async function fetchYamlFromUrl(url) {
+    const fetchUrl = buildFetchUrl(url);
+    const resp = await fetch(fetchUrl);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+    const text = await resp.text();
+    // Validate it's parseable YAML
+    jsyaml.load(text);
+    return text;
+  }
+
+  async function syncSpec(id) {
+    const spec = specs.find(s => s.id === id);
+    if (!spec || !spec.source || !spec.source.url) return;
+
+    const btn = document.getElementById('sync-' + id);
+    if (btn) btn.classList.add('syncing');
+
+    try {
+      const yaml = await fetchYamlFromUrl(spec.source.url);
+      spec.yaml = yaml;
+      spec.source.lastSynced = Date.now();
+      saveSpecs();
+      renderSidebar();
+      if (activeId === id) selectSpec(id);
+    } catch (e) {
+      alert('Sync failed for "' + spec.name + '":\n' + e.message);
+    } finally {
+      const btn2 = document.getElementById('sync-' + id);
+      if (btn2) btn2.classList.remove('syncing');
+    }
+  }
+
+  async function syncAll() {
+    const syncable = specs.filter(s => s.source && s.source.url);
+    if (syncable.length === 0) { alert('No specs have a source URL configured.'); return; }
+
+    const btn = document.getElementById('btn-sync-all');
+    btn.disabled = true;
+    btn.textContent = 'Syncing...';
+
+    const errors = [];
+    for (const spec of syncable) {
+      try {
+        const yaml = await fetchYamlFromUrl(spec.source.url);
+        spec.yaml = yaml;
+        spec.source.lastSynced = Date.now();
+      } catch (e) {
+        errors.push(spec.name + ': ' + e.message);
+      }
+    }
+
+    saveSpecs();
+    renderSidebar();
+    if (activeId && syncable.some(s => s.id === activeId)) selectSpec(activeId);
+
+    btn.disabled = false;
+    btn.textContent = 'Sync All';
+
+    if (errors.length > 0) {
+      alert('Some syncs failed:\n\n' + errors.join('\n'));
+    }
+  }
+
+  async function fetchFromUrl() {
+    const urlInput = document.getElementById('source-url-input');
+    const url = urlInput.value.trim();
+    const errEl = document.getElementById('modal-error');
+    if (!url) { errEl.textContent = 'Please enter a source URL first.'; return; }
+
+    const btn = document.getElementById('fetch-url-btn');
+    btn.disabled = true;
+    btn.textContent = 'Fetching...';
+    errEl.textContent = '';
+
+    try {
+      const yaml = await fetchYamlFromUrl(url);
+      document.getElementById('yaml-textarea').value = yaml;
+      // Auto-fill name if empty
+      if (!document.getElementById('spec-name-input').value) {
+        const parts = url.split('/');
+        const filename = parts[parts.length - 1] || 'Untitled';
+        document.getElementById('spec-name-input').value = filename.replace(/\.(yaml|yml|json)$/i, '');
+      }
+    } catch (e) {
+      errEl.textContent = 'Fetch failed: ' + e.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Fetch';
+    }
+  }
+
+  function formatTimeAgo(ts) {
+    const diff = Date.now() - ts;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    const days = Math.floor(hrs / 24);
+    return days + 'd ago';
+  }
+
   // ── Keyboard shortcuts ────────────────────────────────────
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeModal();
@@ -608,6 +854,8 @@
   yamlScript.onload = () => {
     loadSpecs();
     renderSidebar();
+    // Load CORS proxy setting
+    document.getElementById('cors-proxy-input').value = getCorsProxy();
     // Auto-select first spec if available
     if (specs.length > 0) selectSpec(specs[0].id);
   };
