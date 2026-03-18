@@ -123,6 +123,13 @@
         <label for="spec-name-input">Spec Name</label>
         <input id="spec-name-input" type="text" placeholder="e.g. User Service API v2" />
       </div>
+      <div>
+        <label for="source-url-input">Source URL (optional)</label>
+        <div class="source-url-group">
+          <input id="source-url-input" type="url" placeholder="e.g. https://gitea.company.com/org/repo/raw/branch/main/openapi.yaml" />
+          <button id="fetch-url-btn" onclick="fetchFromUrl()">Fetch</button>
+        </div>
+      </div>
       <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
           <label style="margin:0">YAML Content</label>
