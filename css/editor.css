@@ -1,0 +1,135 @@
+/* Editor styles */
+#editor-container {
+  flex: 1;
+  flex-direction: row;
+  background: #1b1b1b;
+  border-left: 1px solid #333;
+  min-height: 0;
+  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+}
+
+#editor-container.visible {
+  opacity: 1;
+  pointer-events: auto;
+  position: relative;
+}
+
+#editor-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-right: 1px solid #333;
+}
+
+#editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #252525;
+  border-bottom: 1px solid #333;
+  gap: 10px;
+}
+
+#editor-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+#editor-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.editor-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.editor-btn.primary {
+  background: #2b6cb0;
+  color: #fff;
+}
+.editor-btn.primary:hover {
+  background: #2563a8;
+}
+
+.editor-btn.secondary {
+  background: #404040;
+  color: #aaa;
+}
+.editor-btn.secondary:hover {
+  background: #505050;
+}
+
+#live-editor-textarea {
+  flex: 1;
+  padding: 16px;
+  background: #1b1b1b;
+  color: #e0e0e0;
+  border: none;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+  min-height: 0;
+}
+#live-editor-textarea:focus {
+  outline: none;
+}
+
+#editor-error {
+  padding: 10px 16px;
+  background: #3d2121;
+  color: #ff6b6b;
+  font-size: 12px;
+  border-top: 1px solid #333;
+  min-height: auto;
+  overflow: hidden;
+  word-break: break-word;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, max-height;
+  max-height: 100px;
+}
+
+#editor-preview {
+  flex: 1;
+  overflow-y: auto;
+  background: #1b1b1b;
+  min-width: 0;
+  min-height: 0;
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+#editor-preview .swagger-ui {
+  background: #1b1b1b;
+}
+
+#editor-preview .swagger-ui .topbar {
+  display: none;
+}
+
+#editor-preview #editor-swagger-ui {
+  min-height: 100vh;
+}
